@@ -57,5 +57,28 @@ tools:context=".MainActivity">
     android:id="@+id/result"
     android:layout_below="@+id/classified"
     />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="Confidence as:"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:id="@+id/confidenceid"
+        android:layout_below="@+id/result"
+        android:layout_marginTop="10sp"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text=""
+        android:textColor="#C30000"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:id="@+id/confidence"
+        android:layout_below="@+id/confidenceid"
+        />
+
 
 </RelativeLayout>
