@@ -24,18 +24,33 @@ import android.widget.TextView;
 
 
 
-import com.example.imageclassification.ml.Model;
+import com.example.imageclassification.ml.Model0;
+import com.example.imageclassification.ml.Model1;
+import com.example.imageclassification.ml.Model2;
+import com.example.imageclassification.ml.Model3;
+import com.example.imageclassification.ml.Model4;
+import com.example.imageclassification.ml.Model5;
+import com.example.imageclassification.ml.Model6;
+import com.example.imageclassification.ml.Model7;
+import com.example.imageclassification.ml.Model8;
+import com.example.imageclassification.ml.Model9;
 
 import org.tensorflow.lite.DataType;
+import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    TextView result,confidence;
+    TextView result,uncertainty;
     Button gallery, camera;
     int imagewidthSize = 75;
     int imageheightSize = 100;
@@ -80,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         gallery = findViewById(R.id.button2);
         result = findViewById(R.id.result);
         imageView = findViewById(R.id.imageView);
-        confidence = findViewById(R.id.confidence);
+        uncertainty = findViewById(R.id.uncertainty);
 
         camera.setOnClickListener(new View.OnClickListener() {
 
@@ -107,8 +122,19 @@ public class MainActivity extends AppCompatActivity {
 
     //cancel annotation here!!!!
     public void classifyImage(Bitmap image) {
+//        File model0_file = new File("/app/src/main/ml/model_0.tflite");
+
         try {
-            Model model = Model.newInstance(getApplicationContext());
+            Model0 model0 = Model0.newInstance(getApplicationContext());
+            Model1 model1 = Model1.newInstance(getApplicationContext());
+            Model2 model2 = Model2.newInstance(getApplicationContext());
+            Model3 model3 = Model3.newInstance(getApplicationContext());
+            Model4 model4 = Model4.newInstance(getApplicationContext());
+            Model5 model5 = Model5.newInstance(getApplicationContext());
+            Model6 model6 = Model6.newInstance(getApplicationContext());
+            Model7 model7 = Model7.newInstance(getApplicationContext());
+            Model8 model8 = Model8.newInstance(getApplicationContext());
+            Model9 model9 = Model9.newInstance(getApplicationContext());
 
             // Creates inputs for reference.
             TensorBuffer inputFeature0 = TensorBuffer.createFixedSize(new int[]{1, 75, 100, 3}, DataType.FLOAT32);
@@ -116,8 +142,13 @@ public class MainActivity extends AppCompatActivity {
             ByteBuffer byteBuffer = ByteBuffer.allocateDirect(4 * imagewidthSize * imageheightSize * 3);
             byteBuffer.order(ByteOrder.nativeOrder());
 
+            //normalization values
+            double mean = 159.76;
+            double std = 46.44;
+
             int[] intValues = new int[imagewidthSize * imageheightSize];
             image.getPixels(intValues, 0, image.getWidth(), 0, 0, image.getWidth(), image.getHeight());
+
             //for loop to go over the full pixels.
             //track the pixel number where we are on
             int pixel = 0;
@@ -125,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < imageheightSize; i++) {
                 for (int j = 0; j < imagewidthSize; j++) {
                     int val = intValues[pixel++]; //RGB
+                    val = (int) ((val - mean) / std);
 //                    byteBuffer.putFloat(((val>>16)& 0xFF)* (1.f/1));
 //                    byteBuffer.putFloat(((val>>8)& 0xFF)* (1.f/1));
 //                    byteBuffer.putFloat((val& 0xFF)* (1.f/1));
@@ -136,35 +168,97 @@ public class MainActivity extends AppCompatActivity {
             }
 
             inputFeature0.loadBuffer(byteBuffer);
+//            TensorBuffer output_t = TensorBuffer.createFixedSize(new int[]{1, 7}, DataType.FLOAT32);
+//            try (Interpreter interpreter = new Interpreter(model0_file)) {
+//                interpreter.run(inputFeature0, output_t);
+//            }
+//            float[] output = output_t.getFloatArray();
+//            System.out.println("outputs: ");
+//            for (int i = 0; i < output.length; ++i) {
+//                System.out.println(output);
+//            }
+
 
             // Runs model inference and gets result.
-            Model.Outputs outputs = model.process(inputFeature0);
-            TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
+            float[][] softmax_outputs = new float[10][7];
+            Model0.Outputs outputs0 = model0.process(inputFeature0);
+            softmax_outputs[0] = outputs0.getOutputFeature0AsTensorBuffer().getFloatArray();
+            Model1.Outputs outputs1 = model1.process(inputFeature0);
+            softmax_outputs[1] = outputs1.getOutputFeature0AsTensorBuffer().getFloatArray();
+            Model2.Outputs outputs2 = model2.process(inputFeature0);
+            softmax_outputs[2] = outputs2.getOutputFeature0AsTensorBuffer().getFloatArray();
+            Model3.Outputs outputs3 = model3.process(inputFeature0);
+            softmax_outputs[3] = outputs3.getOutputFeature0AsTensorBuffer().getFloatArray();
+            Model4.Outputs outputs4 = model4.process(inputFeature0);
+            softmax_outputs[4] = outputs4.getOutputFeature0AsTensorBuffer().getFloatArray();
+            Model5.Outputs outputs5 = model5.process(inputFeature0);
+            softmax_outputs[5] = outputs5.getOutputFeature0AsTensorBuffer().getFloatArray();
+            Model6.Outputs outputs6 = model6.process(inputFeature0);
+            softmax_outputs[6] = outputs6.getOutputFeature0AsTensorBuffer().getFloatArray();
+            Model7.Outputs outputs7 = model7.process(inputFeature0);
+            softmax_outputs[7] = outputs7.getOutputFeature0AsTensorBuffer().getFloatArray();
+            Model8.Outputs outputs8 = model8.process(inputFeature0);
+            softmax_outputs[8] = outputs8.getOutputFeature0AsTensorBuffer().getFloatArray();
+            Model9.Outputs outputs9 = model9.process(inputFeature0);
+            softmax_outputs[9] = outputs9.getOutputFeature0AsTensorBuffer().getFloatArray();
 
-            //output
+            // Releases models resources if no longer used.
+            model0.close();
+            model1.close();
+            model2.close();
+            model3.close();
+            model4.close();
+            model5.close();
+            model6.close();
+            model7.close();
+            model8.close();
+            model9.close();
 
-            //
 
-            float[] confidences = outputFeature0.getFloatArray();
-            //find the index of the class with the highest confidence.
-            int maxPos = 0;
-            float maxConfidence = 0;
-            for (int i = 0; i < confidences.length; i++) {
-                if (confidences[i] > maxConfidence) {
-                    maxConfidence = confidences[i];
-                    maxPos = i;
+//            String[] classes = {"Melanocytic nevi", "Dermatofibroma", "Vascular lesions", "Melanoma", "Benign keratosis-like lesions", "Basal cell carcinoma", "Actinic keratoses"};
+            String[] classes = {"Actinic keratoses", "Basal cell carcinoma", "Benign keratosis-like lesions", "Dermatofibroma", "Melanocytic nevi", "Melanoma", "Vascular lesions"};
+
+
+            // compute prediction and uncertainty using variation ratio
+            // that means: plurality vote for prediction and for uncertainty: 1 - w / S,
+            //    where w is the number of samples where the overall prediction equals the prediction of the sample
+            //    and S is the total number of samples.
+
+            HashMap<Integer, Integer> votes = new HashMap<>();
+            float[] mean_distr = new float[7];
+            for(int i = 0; i < 10; ++i){
+                System.out.println("-----");
+                float currMax = -1;
+                int currMaxIdx = -1;
+                for(int j = 0; j< 7; ++j) {
+                    mean_distr[j] += softmax_outputs[i][j] / 7;
+                    float output = softmax_outputs[i][j];
+                    if (output > currMax) {
+                        currMax = output;
+                        currMaxIdx = j;
+                    }
+                }
+                if(votes.containsKey(currMaxIdx)) {
+                    votes.put(currMaxIdx, votes.get(currMaxIdx) + 1);
+                }
+                else {
+                    votes.put(currMaxIdx, 1);
                 }
             }
-            String[] classes = {"Melanocytic nevi", "Dermatofibroma", "Vascular lesions", "Melanoma", "Benign keratosis-like lesions", "Basal cell carcinoma", "Actinic keratoses"};
-            result.setText(classes[maxPos]);
+
+            int prediction = Collections.max(votes.entrySet(), (entry1, entry2) -> entry1.getValue() - entry2.getValue()).getKey();
+            double uncertainty_val = 1.0 - (double) votes.get(prediction) / (double) softmax_outputs.length;
+            String predicted_class = classes[prediction];
+
+            result.setText(predicted_class);
+            String rounded_uncert = Double.toString(Math.round(uncertainty_val * 100.0) / 100.0) + "\n";
+            uncertainty.setText(rounded_uncert);
 
             String s = "";
             for (int i =0; i<classes.length; i++){
-                s+= String.format("%s: %1f%%\n",classes[i],confidences[i]*100);
+                s+= classes[i] + mean_distr[i] + "\n";
             }
-            confidence.setText(s);
-         // Releases model resources if no longer used.
-            model.close();
+            System.out.println("Mean distribution: \n" + s);
         } catch (IOException e) {
             // TODO Handle the exception
         }

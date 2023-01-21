@@ -61,10 +61,10 @@ tools:context=".MainActivity">
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:text="Confidence as:"
+        android:text="Uncertainty:"
         android:textStyle="bold"
         android:textSize="20sp"
-        android:id="@+id/confidenceid"
+        android:id="@+id/uncertaintyid"
         android:layout_below="@+id/result"
         android:layout_marginTop="10sp"
         />
@@ -76,8 +76,8 @@ tools:context=".MainActivity">
         android:textColor="#C30000"
         android:textStyle="bold"
         android:textSize="18sp"
-        android:id="@+id/confidence"
-        android:layout_below="@+id/confidenceid"
+        android:id="@+id/uncertainty"
+        android:layout_below="@+id/uncertaintyid"
         />
 
 
