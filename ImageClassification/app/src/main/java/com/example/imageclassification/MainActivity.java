@@ -37,6 +37,10 @@ import com.example.imageclassification.ml.Model9;
 
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
+import org.tensorflow.lite.support.common.ops.NormalizeOp;
+import org.tensorflow.lite.support.image.ImageProcessor;
+import org.tensorflow.lite.support.image.TensorImage;
+import org.tensorflow.lite.support.image.ops.ResizeOp;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 import java.io.File;
@@ -44,6 +48,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -52,8 +57,8 @@ public class MainActivity extends AppCompatActivity {
 
     TextView result,uncertainty;
     Button gallery, camera;
-    int imagewidthSize = 75;
-    int imageheightSize = 100;
+    int imagewidthSize = 100;
+    int imageheightSize = 75;
     ImageView imageView;
 
     int CAMERA_PICTURE = 3;
@@ -136,70 +141,42 @@ public class MainActivity extends AppCompatActivity {
             Model8 model8 = Model8.newInstance(getApplicationContext());
             Model9 model9 = Model9.newInstance(getApplicationContext());
 
-            // Creates inputs for reference.
-            TensorBuffer inputFeature0 = TensorBuffer.createFixedSize(new int[]{1, 75, 100, 3}, DataType.FLOAT32);
-            //allocateing the size to bytebuffer, 4 is bitmap float, 3 is rgb.
-            ByteBuffer byteBuffer = ByteBuffer.allocateDirect(4 * imagewidthSize * imageheightSize * 3);
-            byteBuffer.order(ByteOrder.nativeOrder());
-
+            System.out.println("loaded models");
             //normalization values
-            double mean = 159.76;
-            double std = 46.44;
+            float mean = 159.76f;
+            float std = 46.44f;
 
-            int[] intValues = new int[imagewidthSize * imageheightSize];
-            image.getPixels(intValues, 0, image.getWidth(), 0, 0, image.getWidth(), image.getHeight());
-
-            //for loop to go over the full pixels.
-            //track the pixel number where we are on
-            int pixel = 0;
-            //iterate over each pixel and extract RGB values, add those values individually to the bytebuffer.
-            for (int i = 0; i < imageheightSize; i++) {
-                for (int j = 0; j < imagewidthSize; j++) {
-                    int val = intValues[pixel++]; //RGB
-                    val = (int) ((val - mean) / std);
-//                    byteBuffer.putFloat(((val>>16)& 0xFF)* (1.f/1));
-//                    byteBuffer.putFloat(((val>>8)& 0xFF)* (1.f/1));
-//                    byteBuffer.putFloat((val& 0xFF)* (1.f/1));
-                    //rescale the layer size to get the range from 0-1, that why delete 255.
-                    byteBuffer.putFloat(((val >> 16) & 0xFF) * (1.f / 255));
-                    byteBuffer.putFloat(((val >> 8) & 0xFF) * (1.f / 255));
-                    byteBuffer.putFloat((val & 0xFF) * (1.f / 255));
-                }
-            }
-
-            inputFeature0.loadBuffer(byteBuffer);
-//            TensorBuffer output_t = TensorBuffer.createFixedSize(new int[]{1, 7}, DataType.FLOAT32);
-//            try (Interpreter interpreter = new Interpreter(model0_file)) {
-//                interpreter.run(inputFeature0, output_t);
-//            }
-//            float[] output = output_t.getFloatArray();
-//            System.out.println("outputs: ");
-//            for (int i = 0; i < output.length; ++i) {
-//                System.out.println(output);
-//            }
-
+            TensorImage tensorImage = TensorImage.fromBitmap(image);
+            System.out.println("loaded image");
+            ImageProcessor processor = new ImageProcessor.Builder()
+                    .add(new ResizeOp(imageheightSize, imagewidthSize, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
+                    .add(new NormalizeOp(mean, std))
+                    .build();
+            TensorImage processedImage = processor.process(tensorImage);
+            TensorBuffer inputBuffer = processedImage.getTensorBuffer();
+            System.out.println("shape input buffer: " + Arrays.toString(inputBuffer.getShape()));
 
             // Runs model inference and gets result.
             float[][] softmax_outputs = new float[10][7];
-            Model0.Outputs outputs0 = model0.process(inputFeature0);
+            Model0.Outputs outputs0 = model0.process(inputBuffer);
             softmax_outputs[0] = outputs0.getOutputFeature0AsTensorBuffer().getFloatArray();
-            Model1.Outputs outputs1 = model1.process(inputFeature0);
+            Model1.Outputs outputs1 = model1.process(inputBuffer);
             softmax_outputs[1] = outputs1.getOutputFeature0AsTensorBuffer().getFloatArray();
-            Model2.Outputs outputs2 = model2.process(inputFeature0);
+            Model2.Outputs outputs2 = model2.process(inputBuffer);
             softmax_outputs[2] = outputs2.getOutputFeature0AsTensorBuffer().getFloatArray();
-            Model3.Outputs outputs3 = model3.process(inputFeature0);
+            Model3.Outputs outputs3 = model3.process(inputBuffer);
             softmax_outputs[3] = outputs3.getOutputFeature0AsTensorBuffer().getFloatArray();
-            Model4.Outputs outputs4 = model4.process(inputFeature0);
+            Model4.Outputs outputs4 = model4.process(inputBuffer);
             softmax_outputs[4] = outputs4.getOutputFeature0AsTensorBuffer().getFloatArray();
-            Model5.Outputs outputs5 = model5.process(inputFeature0);
+            Model5.Outputs outputs5 = model5.process(inputBuffer);
             softmax_outputs[5] = outputs5.getOutputFeature0AsTensorBuffer().getFloatArray();
-            Model6.Outputs outputs6 = model6.process(inputFeature0);
+            Model6.Outputs outputs6 = model6.process(inputBuffer);
             softmax_outputs[6] = outputs6.getOutputFeature0AsTensorBuffer().getFloatArray();
-            Model7.Outputs outputs7 = model7.process(inputFeature0);
+            Model7.Outputs outputs7 = model7.process(inputBuffer);
             softmax_outputs[7] = outputs7.getOutputFeature0AsTensorBuffer().getFloatArray();
-            Model8.Outputs outputs8 = model8.process(inputFeature0);
+            Model8.Outputs outputs8 = model8.process(inputBuffer);
             softmax_outputs[8] = outputs8.getOutputFeature0AsTensorBuffer().getFloatArray();
-            Model9.Outputs outputs9 = model9.process(inputFeature0);
+            Model9.Outputs outputs9 = model9.process(inputBuffer);
             softmax_outputs[9] = outputs9.getOutputFeature0AsTensorBuffer().getFloatArray();
 
             // Releases models resources if no longer used.
