@@ -73,7 +73,9 @@ public class MainActivity extends AppCompatActivity {
             //recale the image and make it fittable size.
             picture = ThumbnailUtils.extractThumbnail(picture, picture.getWidth(), picture.getHeight());
             imageView.setImageBitmap(picture);
-            picture = Bitmap.createScaledBitmap(picture, imagewidthSize, imageheightSize, false);
+//            picture = Bitmap.createScaledBitmap(picture, imagewidthSize, imageheightSize, false);
+            // convert to ARGB_8888
+            picture = picture.copy(Bitmap.Config.ARGB_8888,true) ;
             //Using model to classify the picture.
             classifyImage(picture);
         } else {
