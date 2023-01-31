@@ -55,11 +55,12 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    TextView result,uncertainty;
+    TextView result,uncertainty,ood;
     Button gallery, camera;
     int imagewidthSize = 100;
     int imageheightSize = 75;
     ImageView imageView;
+
 
     int CAMERA_PICTURE = 3;
 
@@ -103,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
         result = findViewById(R.id.result);
         imageView = findViewById(R.id.imageView);
         uncertainty = findViewById(R.id.uncertainty);
+        ood = findViewById(R.id.outofDistribution);
 
         camera.setOnClickListener(new View.OnClickListener() {
 
@@ -232,6 +234,12 @@ public class MainActivity extends AppCompatActivity {
             result.setText(predicted_class);
             String rounded_uncert = Double.toString(Math.round(uncertainty_val * 100.0) / 100.0) + "\n";
             uncertainty.setText(rounded_uncert);
+
+            if (uncertainty_val> 0.3){
+                ood.setText("It can be considered as Out-of-Distribution");
+
+            }
+
 
             String s = "";
             for (int i =0; i<classes.length; i++){

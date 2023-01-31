@@ -79,6 +79,17 @@ tools:context=".MainActivity">
         android:id="@+id/uncertainty"
         android:layout_below="@+id/uncertaintyid"
         />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text=""
+        android:textColor="#C30000"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:id="@+id/outofDistribution"
+        android:layout_below="@+id/uncertainty"
+        />
 
 
 </RelativeLayout>
