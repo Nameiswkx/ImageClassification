@@ -235,9 +235,9 @@ public class MainActivity extends AppCompatActivity {
             String rounded_uncert = Double.toString(Math.round(uncertainty_val * 100.0) / 100.0) + "\n";
             uncertainty.setText(rounded_uncert);
 
-            if (uncertainty_val> 0.3){
+            ood.setText("");
+            if ((Math.round(uncertainty_val * 100.0) / 100.0)> 0.2){
                 ood.setText("It can be considered as Out-of-Distribution");
-
             }
 
 
